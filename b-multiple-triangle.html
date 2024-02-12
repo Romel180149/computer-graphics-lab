@@ -14,37 +14,34 @@
   <canvas id="myCanvas" width="600" height="400"></canvas>
 
   <script>
-    // Get the canvas element
     var canvas = document.getElementById('myCanvas');
-    var ctx = canvas.getContext('2d');
+    var context = canvas.getContext('2d');
 
-    // Function to draw a triangle given three points
-    function drawTriangle(x1, y1, x2, y2, x3, y3) {
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.lineTo(x3, y3);
-      ctx.closePath();
-      ctx.stroke();
+    function drawTriangle(x1, y1, x2, y2, x3, y3, fillColor) {
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.lineTo(x3, y3);
+      context.closePath();
+
+      context.fillStyle = fillColor; 
+      context.fill();
+      // context.stroke();
     }
 
-    // Function to draw multiple triangles
     function drawMultipleTriangles() {
-      // Define the coordinates of the triangles
       var triangles = [
-        { x1: 50, y1: 50, x2: 100, y2: 100, x3: 150, y3: 50 },
-        { x1: 200, y1: 100, x2: 250, y2: 50, x3: 300, y3: 100 },
-        { x1: 350, y1: 50, x2: 400, y2: 100, x3: 450, y3: 50 },
-        { x1: 500, y1: 100, x2: 550, y2: 50, x3: 600, y3: 100 }
+        { x1: 50, y1: 50, x2: 100, y2: 125, x3: 150, y3: 50, color: 'yellow'},
+        { x1: 150, y1: 50, x2: 100, y2: 125, x3: 200, y3: 125, color: 'orange' },
+        { x1: 150, y1: 50, x2: 200, y2: 125, x3: 250, y3: 50, color: 'skyblue' },
+        { x1: 100, y1: 125, x2: 200, y2: 125, x3: 150, y3: 200, color: 'red' }
       ];
 
-      // Draw each triangle
       triangles.forEach(function(triangle) {
-        drawTriangle(triangle.x1, triangle.y1, triangle.x2, triangle.y2, triangle.x3, triangle.y3);
+        drawTriangle(triangle.x1, triangle.y1, triangle.x2, triangle.y2, triangle.x3, triangle.y3, triangle.color);
       });
     }
 
-    // Call the function to draw multiple triangles
     drawMultipleTriangles();
   </script>
 </body>
