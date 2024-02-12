@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quad with Two Triangles</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+
+    <script>
+        // Get the canvas element
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+
+        // Define the vertices of the quad as points
+        var quadVertices = [
+            { x: 100, y: 100 },
+            { x: 300, y: 100 },
+            { x: 300, y: 300 },
+            { x: 100, y: 300 }
+        ];
+
+        // Define the triangles using the vertices
+        var triangle1 = [quadVertices[0], quadVertices[1], quadVertices[2]];
+        var triangle2 = [quadVertices[0], quadVertices[2], quadVertices[3]];
+
+        // Function to draw a triangle
+        function drawTriangle(vertices) {
+            context.beginPath();
+            context.moveTo(vertices[0].x, vertices[0].y);
+            context.lineTo(vertices[1].x, vertices[1].y);
+            context.lineTo(vertices[2].x, vertices[2].y);
+            context.closePath();
+            context.stroke();
+        }
+
+        // Function to draw the quad by drawing its two triangles
+        function drawQuad() {
+            drawTriangle(triangle1);
+            drawTriangle(triangle2);
+        }
+
+        // Call the function to draw the quad
+        drawQuad();
+    </script>
+</body>
+</html>
