@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bresenham's Line Algorithm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bresenham's Line Algorithm</h1>
+    <h3>Md Mosiur Rahman Romel, ID: 180149, CSE 4th Year</h3>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawLine(x0, y0, x1, y1) {
+            console.log('Input points:', { x0, y0 }, { x1, y1 });
+
+            let dx = Math.abs(x1 - x0);
+            let dy = Math.abs(y1 - y0);
+            let sx = x0 < x1 ? 1 : -1;
+            let sy = y0 < y1 ? 1 : -1;
+            let err = dx - dy;
+            let x = x0;
+            let y = y0;
+
+            while (true) {
+                console.log('Plotting point:', { x, y });
+                ctx.fillRect(x, y, 1, 1);
+                // ctx.strokeStyle = 'red';
+
+                if (x === x1 && y === y1) break;
+                let e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x += sx; }
+                if (e2 < dx) { err += dx; y += sy; }
+            }
+        }
+
+        function init() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLine(50, 50, 200, 100);
+        }
+
+        init();
+    </script>
+</body>
+</html>

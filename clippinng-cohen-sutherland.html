@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Clipping - Cohen-Sutherland Algorithm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Line Clipping - Cohen-Sutherland Algorithm</h1>
+    <h3>Md Mosiur Rahman Romel, ID: 180149, CSE 4th Year</h3>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function Point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        const WIN_LEFT_BIT = 0x01;
+        const WIN_RIGHT_BIT = 0x02;
+        const WIN_BOTTOM_BIT = 0x04;
+        const WIN_TOP_BIT = 0x08;
+
+        function drawWindow(winMin, winMax) {
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(winMin.x, winMin.y);
+            ctx.lineTo(winMin.x, winMax.y);
+            ctx.lineTo(winMax.x, winMax.y);
+            ctx.lineTo(winMax.x, winMin.y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function encode(p, winMin, winMax) {
+            let code = 0x00;
+            if (p.x < winMin.x) code |= WIN_LEFT_BIT;
+            if (p.x > winMax.x) code |= WIN_RIGHT_BIT;
+            if (p.y < winMin.y) code |= WIN_BOTTOM_BIT;
+            if (p.y > winMax.y) code |= WIN_TOP_BIT;
+            return code;
+        }
+
+        function inside(code) {
+            return !code;
+        }
+
+        function accept(code1, code2) {
+            return !(code1 | code2);
+        }
+
+        function reject(code1, code2) {
+            return code1 & code2;
+        }
+
+        function lineClip(p1, p2, winMin, winMax) {
+            console.log('Input points:', p1, p2);
+            let code1, code2;
+            let done = false, plotLine = false;
+            let m = 0;
+            if (p1.x !== p2.x) {
+                m = (p2.y - p1.y) / (p2.x - p1.x);
+            }
+            while (!done) {
+                code1 = encode(p1, winMin, winMax);
+                code2 = encode(p2, winMin, winMax);
+                if (accept(code1, code2)) {
+                    done = true;
+                    plotLine = true;
+                } else if (reject(code1, code2)) {
+                    done = true;
+                } else {
+                    if (inside(code1)) {
+                        [p1, p2] = [p2, p1];
+                        [code1, code2] = [code2, code1];
+                    }
+                    if (code1 & WIN_LEFT_BIT) {
+                        p1.y += (winMin.x - p1.x) * m;
+                        p1.x = winMin.x;
+                    } else if (code1 & WIN_RIGHT_BIT) {
+                        p1.y += (winMax.x - p1.x) * m;
+                        p1.x = winMax.x;
+                    } else if (code1 & WIN_BOTTOM_BIT) {
+                        if (p1.x !== p2.x) p1.x += (winMin.y - p1.y) / m;
+                        p1.y = winMin.y;
+                    } else if (code1 & WIN_TOP_BIT) {
+                        if (p1.x !== p2.x) p1.x += (winMax.y - p1.y) / m;
+                        p1.y = winMax.y;
+                    }
+                }
+            }
+            if (plotLine) {
+                console.log('Output points:', p1, p2);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(Math.round(p1.x), Math.round(p1.y));
+                ctx.lineTo(Math.round(p2.x), Math.round(p2.y));
+                ctx.stroke();
+            }
+        }
+
+        function initClip() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const winMin = new Point(60, 60);
+            const winMax = new Point(470, 290);
+            drawWindow(winMin, winMax);
+
+            const p1 = new Point(50, 50);
+            const p2 = new Point(490, 310);
+
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+
+            lineClip(p1, p2, winMin, winMax);
+        }
+
+        initClip();
+    </script>
+</body>
+</html>

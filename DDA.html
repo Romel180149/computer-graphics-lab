@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDA Line Algorithm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>DDA Line Algorithm</h1>
+    <h3>Md Mosiur Rahman Romel, ID: 180149, CSE 4th Year</h3>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawLine(x0, y0, x1, y1) {
+            console.log('Input points:', { x0, y0 }, { x1, y1 });
+
+            let dx = x1 - x0;
+            let dy = y1 - y0;
+            let steps = Math.max(Math.abs(dx), Math.abs(dy));
+            let xIncrement = dx / steps;
+            let yIncrement = dy / steps;
+            let x = x0;
+            let y = y0;
+
+            ctx.strokeStyle = 'red'; // Set line color to red
+            ctx.beginPath();
+            ctx.moveTo(Math.round(x), Math.round(y));
+
+            for (let i = 0; i <= steps; i++) {
+                console.log('Plotting point:', { x: Math.round(x), y: Math.round(y) });
+                ctx.lineTo(Math.round(x), Math.round(y));
+                x += xIncrement;
+                y += yIncrement;
+            }
+
+            ctx.stroke();
+        }
+
+        function init() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLine(50, 50, 200, 100);
+        }
+
+        init();
+    </script>
+</body>
+</html>
