@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D WebGL Scene</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+    <!-- Load Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+    <!-- Load OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js"></script>
+    <!-- Load dat.GUI -->
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@latest/build/dat.gui.min.js"></script>
+    <!-- Load GLTFLoader -->
+<script src="https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/loaders/GLTFLoader.js"></script>
+
+</head>
+<body>
+    <script>
+        let scene, camera, renderer, controls, gui;
+        let cube, sphere,cylinder;  // Define global variables for cube and sphere
+
+        const settings = {
+            cubeSpeedX: 0.01,
+            cubeSpeedY: 0.01,
+            sphereSpeedX: 0.01,
+            sphereSpeedY: 0.01,
+            enableShadows: true,
+            enableAnimations: true
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+
+            // Create a camera with perspective projection
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(8, 5, 15);
+            camera.lookAt(0, 0, 0);
+
+            // Create a renderer and enable shadows
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = settings.enableShadows;
+            document.body.appendChild(renderer.domElement);
+
+            // Set up OrbitControls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+
+            // Add environment texture for a polished background
+            const textureLoader = new THREE.TextureLoader();
+            const envTexture = textureLoader.load('https://threejsfundamentals.org/threejs/resources/images/space.jpg');
+          
+            scene.background = envTexture;
+
+            // Create objects
+            createObjects();
+
+            // Add lighting
+            addLighting();
+
+            // Setup the GUI controls
+            setupGUI();
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createObjects() {
+            // Load texture for the cube
+            const textureLoader = new THREE.TextureLoader();
+            const metalTexture = textureLoader.load('https://threejsfundamentals.org/threejs/resources/images/wall.jpg');
+
+            // Create a textured cube
+            const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+            const cubeMaterial = new THREE.MeshStandardMaterial({ map: metalTexture });
+            cube = new THREE.Mesh(cubeGeometry, cubeMaterial);  // Assign to global cube variable
+            cube.position.set(-3, 1, 0);
+            cube.castShadow = settings.enableShadows;
+            scene.add(cube);
+
+            // Create a shiny reflective sphere
+            const sphereGeometry = new THREE.SphereGeometry(1.5, 64, 64);
+            const sphereMaterial = new THREE.MeshStandardMaterial({ color: 0xff7700, metalness: 0.6, roughness: 0.1 });
+            sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);  // Assign to global sphere variable
+            sphere.position.set(3, 1, 0);
+            sphere.castShadow = settings.enableShadows;
+            scene.add(sphere);
+        
+
+
+
+            // Create a plane for shadows
+            const planeGeometry = new THREE.PlaneGeometry(30, 30);
+            const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.3 });
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -2;
+            plane.receiveShadow = settings.enableShadows;
+            scene.add(plane);
+        }
+
+        function addLighting() {
+            // Ambient light for soft general lighting
+            const ambientLight = new THREE.AmbientLight(0x606060, 0.7);
+            scene.add(ambientLight);
+
+            // Directional light to create defined shadows
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 15, 5);
+            directionalLight.castShadow = settings.enableShadows;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // Point light for dynamic lighting effects
+            const pointLight = new THREE.PointLight(0xffa500, 0.7, 100);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+        }
+
+        function setupGUI() {
+            gui = new dat.GUI();
+
+            const cubeFolder = gui.addFolder('Cube Rotation');
+            cubeFolder.add(settings, 'cubeSpeedX', 0, 0.1).name('X Speed');
+            cubeFolder.add(settings, 'cubeSpeedY', 0, 0.1).name('Y Speed');
+            cubeFolder.open();
+
+            const sphereFolder = gui.addFolder('Sphere Rotation');
+            sphereFolder.add(settings, 'sphereSpeedX', 0, 0.1).name('X Speed');
+            sphereFolder.add(settings, 'sphereSpeedY', 0, 0.1).name('Y Speed');
+            sphereFolder.open();
+
+            gui.add(settings, 'enableShadows').name('Enable Shadows').onChange(toggleShadows);
+            gui.add(settings, 'enableAnimations').name('Enable Animations');
+        }
+
+        function toggleShadows() {
+            renderer.shadowMap.enabled = settings.enableShadows;
+            scene.traverse(function (object) {
+                if (object.isMesh) {
+                    object.castShadow = settings.enableShadows;
+                    object.receiveShadow = settings.enableShadows;
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation loop with optional dynamic animations
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (settings.enableAnimations) {
+                // Check if cube and sphere are defined before rotating them
+                if (cube) {
+                    cube.rotation.x += settings.cubeSpeedX;
+                    cube.rotation.y += settings.cubeSpeedY;
+                }
+
+                if (sphere) {
+                    sphere.rotation.x += settings.sphereSpeedX;
+                    sphere.rotation.y += settings.sphereSpeedY;
+                }
+            }
+            
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
